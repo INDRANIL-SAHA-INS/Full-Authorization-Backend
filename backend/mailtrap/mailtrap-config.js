@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE } from './email-tamplate.js';
+import { VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE } from './email-tamplate.js';
 
 // Helper to inject the code into the template
 function getVerificationEmailHtml(verificationCode) {
@@ -89,6 +89,25 @@ export async function sendPasswordResetEmail(to, resetLink) {
     return info;
   } catch (error) {
     console.error("Error sending password reset email:", error);
+    throw error;
+  }
+}
+
+// Function to send password reset success email
+export async function sendPasswordResetSuccessEmail(to) {
+  try {
+    const html = PASSWORD_RESET_SUCCESS_TEMPLATE;
+    const info = await transport.sendMail({
+      from: '"Mailtrap Test" <hello@example.com>',
+      to,
+      subject: "Your password has been reset successfully",
+      text: "Your password has been reset successfully. If you did not perform this action, please contact support immediately.",
+      html
+    });
+    console.log("Password reset success email sent: %s", info.messageId);
+    return info;
+  } catch (error) {
+    console.error("Error sending password reset success email:", error);
     throw error;
   }
 }

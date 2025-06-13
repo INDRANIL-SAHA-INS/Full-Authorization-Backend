@@ -1,6 +1,7 @@
 import Usermodel from '../Models/user-model.js';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { sendPasswordResetSuccessEmail } from '../mailtrap/mailtrap-config.js';
 
 // Zod schema for new password validation
 const resetPasswordSchema = z.object({
@@ -36,7 +37,16 @@ export const resetPassword = async (req, res) => {
     user.resetpasswordExpiresAt = undefined;
     await user.save();
 
-    res.json({ message: 'Password has been reset successfully.' });
+    try {
+      const info = await sendPasswordResetSuccessEmail(user.email);
+      if (info.accepted && info.accepted.length > 0) {
+        res.json({ message: 'Password has been reset successfully and confirmation email sent.' });
+      } else {
+        res.status(500).json({ message: 'Password reset, but failed to send confirmation email.' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Password reset, but error sending confirmation email.' });
+    }
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
