@@ -139,3 +139,32 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+//this function checks if the user is authenticated
+
+export const checkauth = async (req, res) => {
+  // Check if user is authenticated
+  if (!req.userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    // Find user by ID
+    const user = await Usermodel.findById(req.userId, 'name email lastlogin isverified');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({
+      message: 'User is authenticated',
+      user: {
+        name: user.name,
+        email: user.email,
+        lastlogin: user.lastlogin,
+        isverified: user.isverified
+      }
+    });
+  }
+  catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};

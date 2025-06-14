@@ -3,14 +3,19 @@ import {
   signup,
   login,
   logout,
-  verifyEmail
+  verifyEmail,
+  checkauth
 
 } from '../Controllers/auth-controller.js';
 
+import { verifyToken } from '../middleware/verifyToken.js';
 import { resetPassword } from '../Controllers/reset-password-controller.js';
 import {forgotPassword} from '../Controllers/forgot-password-controller.js';
+
 const router = express.Router();
 
+//check authentication
+router.get('/check-auth',verifyToken,checkauth);
 // Signup (register new user)
 router.post('/signup', signup);
 
